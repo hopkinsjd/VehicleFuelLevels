@@ -1,5 +1,7 @@
 package com.eaton.hopkins.fleet.vehicle;
 
+import java.util.concurrent.Executors; // <--------------------
+
 import com.eaton.hopkins.CentralMonitoring;
 
 public class UtilityVehicle implements Runnable{
@@ -22,7 +24,8 @@ public class UtilityVehicle implements Runnable{
 					"Utility Vehicle: No central fuel monitoring provided for utility vehicle "
 							+ id);
 		else
-			reportFuelLevel();
+			//reportFuelLevel();
+			Executors.newSingleThreadExecutor().execute(() -> reportFuelLevel());  // <--------------
 	}
 
 	public int getId() {

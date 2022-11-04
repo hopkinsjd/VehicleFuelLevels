@@ -4,8 +4,8 @@ import com.eaton.hopkins.fleet.truck.FuelTruck;
 import com.eaton.hopkins.fleet.truck.RefuelingGasTank;
 import com.eaton.hopkins.fleet.vehicle.UtilityVehicle;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -55,42 +55,29 @@ public class CentralMonitoring {
 		return totalFuelNeeded;
 	}
 
+	private FuelTruck appendTruckToList(List<FuelTruck> trucks) {
+		var truck = new FuelTruck(trucks.size() + 1);
+		truck.refuelingTank.addFuel(RefuelingGasTank.GALLONS_RESERVED);
+		trucks.add(truck);
+		return truck;
+	}
+		
 	public List<FuelTruck> getFuelTrucksFor(float totalFuelNeeded) {
 		List<FuelTruck> fuelTrucks = new LinkedList<>();
-		Iterator<Map.Entry<Integer, UtilityVehicle.FuelReport>> fuelLevelEntries =
-				fuelLevels.entrySet().iterator();
-		Map.Entry<Integer, UtilityVehicle.FuelReport> curEntry = null;
-		if (fuelLevelEntries.hasNext())
-			curEntry = fuelLevelEntries.next();
+		appendTruckToList(fuelTrucks);
+		
+		fuelLevels.entrySet().stream()
+			.sorted(Comparator.comparing(e -> -e.getValue().neededFuel))
+			.forEach(e -> {
+				var truck = fuelTrucks.get(fuelTrucks.size() - 1);
+				var capacity = FuelTruck.MAX_TRUCK_REFUEL - truck.refuelingTank.getFuelLevel();
+				if (capacity <= e.getValue().neededFuel)
+					truck = appendTruckToList(fuelTrucks);
 
-		float truckRefuelSum = 0;
-		int fuelTruckId = 1;
-		FuelTruck fuelTruck = new FuelTruck(fuelTruckId);
-		boolean done = false;
-		while (!done && curEntry != null) {
-			float curNeededFuel = curEntry.getValue().neededFuel;
-			float potentialTruckRefuelSum = curNeededFuel + truckRefuelSum;
-			if (potentialTruckRefuelSum < FuelTruck.MAX_TRUCK_REFUEL) {
-				truckRefuelSum += curNeededFuel;
-				fuelTruck.assignVehicleToRefuel(curEntry.getKey());
-				fuelTruck.refuelingTank.addFuel(curNeededFuel);
-				totalFuelNeeded -= curNeededFuel;
-				if (fuelLevelEntries.hasNext())
-					curEntry = fuelLevelEntries.next();
-				else
-					done = true;
-			} else {
-				fuelTruck.refuelingTank.addFuel(RefuelingGasTank.GALLONS_RESERVED);
-				fuelTrucks.add(fuelTruck);
-				fuelTruck = new FuelTruck(++fuelTruckId);
-				truckRefuelSum = 0;
-			}
-		}
-		if (fuelTruck.assignedVehicleSize() > 0) {
-			fuelTruck.refuelingTank.addFuel(RefuelingGasTank.GALLONS_RESERVED);
-			fuelTrucks.add(fuelTruck);
-		}
+				truck.assignVehicleToRefuel(e.getKey());
+				truck.refuelingTank.addFuel(e.getValue().neededFuel);				
+			});
+
 		return fuelTrucks;
 	}
-
 }

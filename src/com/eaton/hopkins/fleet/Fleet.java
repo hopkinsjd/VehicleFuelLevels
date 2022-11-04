@@ -11,7 +11,7 @@ public class Fleet {
 		//List<UtilityVehicle> utilityVehicles = new ArrayList<>(UTILITY_VEHICLE_COUNT);
 		vehicleThreads = new Thread[UTILITY_VEHICLE_COUNT];
 		for (int i = 0; i < UTILITY_VEHICLE_COUNT; i++) {
-			UtilityVehicle utilityVehicle = new UtilityVehicle(i+1, centralMonitoring);
+			UtilityVehicle utilityVehicle = new UtilityVehicle(i+1, centralMonitoring, (float) i); // <- set the drive speed of each vehicle
 			//utilityVehicles.add(utilityVehicle);
 			vehicleThreads[i] = new Thread(utilityVehicle);
 		}

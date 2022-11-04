@@ -7,13 +7,14 @@ public class UtilityVehicle implements Runnable{
 	public static final float GAS_TANK_GALLON_CAPACITY = 15;
 	private final int id;
 	private static final float MILES_PER_GALLON = 8;
-	private final float milesPerDrive; // <- took away the default value, made non-static
+	private final float milesPerDrive; // <------
+	//private static final float MILES_PER_DRIVE = 3 * MILES_PER_GALLON; <--------
 	private static final int DRIVE_TIME_MILLISECONDS = 3000; // 3 seconds
 
 	private final CentralMonitoring centralFuelMonitoring;
 
-	public UtilityVehicle(int id, CentralMonitoring centralMonitoring, float driveSpeed) {  // <- Accepted driveSpeed param
-		milesPerDrive = driveSpeed; // <- Set the milesPerDrive 
+	public UtilityVehicle(int id, CentralMonitoring centralMonitoring, float driveSpeed) {  // <------
+		milesPerDrive = driveSpeed; // <------- 
 		gasTank = new GasTank(GAS_TANK_GALLON_CAPACITY);
 		gasTank.addFuel(GAS_TANK_GALLON_CAPACITY);
 		this.id = id;
@@ -68,7 +69,8 @@ public class UtilityVehicle implements Runnable{
 	@Override
 	public void run() {
 		while (gasTank.getFuelLevel() > CentralMonitoring.LOW_FUEL_GALLON_THRESHOLD) {
-			drive(milesPerDrive); // <- used the new non-static variable
+			//drive(MILES_PER_DRIVE); <--------
+			drive(milesPerDrive); // <--------
 			try {
 				Thread.sleep(DRIVE_TIME_MILLISECONDS);
 			} catch (InterruptedException e) {

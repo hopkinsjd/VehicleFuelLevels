@@ -8,7 +8,7 @@ public class UtilityVehicle implements Runnable{
 	private final int id;
 	private static final float MILES_PER_GALLON = 8;
 	private static final float MILES_PER_DRIVE = 3 * MILES_PER_GALLON;
-	private static final int DRIVE_TIME_MILLISECONDS = 3000; // 3 seconds
+	private static final int DRIVE_TIME_MILLISECONDS = 500; // <---------------------
 
 	private final CentralMonitoring centralFuelMonitoring;
 
@@ -66,6 +66,9 @@ public class UtilityVehicle implements Runnable{
 	 */
 	@Override
 	public void run() {
+		var gasTankThread = new Thread(gasTank); // <---------------------
+		gasTankThread.start(); // <---------------------
+
 		while (gasTank.getFuelLevel() > CentralMonitoring.LOW_FUEL_GALLON_THRESHOLD) {
 			drive(MILES_PER_DRIVE);
 			try {
@@ -76,5 +79,7 @@ public class UtilityVehicle implements Runnable{
 			}
 			reportFuelLevel();
 		}
+
+		gasTankThread.interrupt(); // <---------------------
 	}
 }

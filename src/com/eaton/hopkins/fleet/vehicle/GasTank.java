@@ -1,6 +1,6 @@
 package com.eaton.hopkins.fleet.vehicle;
 
-public class GasTank {
+public class GasTank implements Runnable {  // <---------------------
 	private final float gallonCapacity;
 	private float fuelLevel;
 	
@@ -10,6 +10,7 @@ public class GasTank {
 	}
 	
 	public float getFuelLevel() {
+		try { Thread.sleep(250); } catch (InterruptedException ex) {}  // <---------------------
 		return fuelLevel;
 	}
 	
@@ -34,5 +35,15 @@ public class GasTank {
 
 	public float getNeededFuel() {
 		return getGallonCapacity() - getFuelLevel();
+	}
+
+	@Override
+	public void run() {    // <---------------------
+		while (true) {
+			try {
+				Thread.sleep(250);
+				addFuel(.1f);
+			} catch (InterruptedException e) { break; }			
+		}
 	}
 }
